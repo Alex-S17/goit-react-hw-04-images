@@ -1,5 +1,4 @@
-import React from "react";
-import { Component } from "react";
+import React, { useEffect, useState } from "react";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { Dna } from 'react-loader-spinner';
@@ -8,25 +7,24 @@ import { requestImages } from "../../services/requestImages/requestImages";
 import { ImageGallery } from "../ImageGallery/ImageGallery";
 import { Button } from "../Button/Button";
 
-export class App extends Component {
-  state = {
-    page: 1,
-    images: [],
-    httpQuery: '',
-    loading: false,
-    isButtonVisible: false,
-  }
+export function App() {
+  const [page, setPage] = useState(1);
+  const [images, setImages] = useState([]);
+  const [httpQuery, setHttpQuery] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [isButtonVisible, setIsButtonVisible] = useState(false);
 
-  async componentDidUpdate(prevProps, prevState) {
-    const { httpQuery, page, } = this.state;
-    if (prevState.httpQuery !== httpQuery || page > prevState.page) {
+  useEffect(() => {
+    if (httpQuery === '') {
+      return;
+    }
+    (async () => {
       try {
-        this.setState({ loading: true, })
+        setLoading(true);
         const objectOfImages = await requestImages(httpQuery, page);
         const arrayOfImages = objectOfImages.data.hits;
         const totalImageNumber = objectOfImages.data.totalHits;
         const totalPage = Math.ceil(totalImageNumber / 12);
-       
         if (objectOfImages.data.total === 0) {
           return toast.error("No images found. Input another query", {
             position: "top-left",
@@ -34,17 +32,13 @@ export class App extends Component {
             theme: "colored",
           });
         };
-                     
+      
         if (page < totalPage) {
-          this.setState({ isButtonVisible: true, })
+          setIsButtonVisible(true);
         }
-        else { this.setState({ isButtonVisible: false, }) };
-        
-        this.setState(prevState => {
-          return {
-            images: [...prevState.images, ...arrayOfImages],
-          };
-        });
+        else { setIsButtonVisible(false) };
+      
+        setImages(prevImagesArray => [...prevImagesArray, ...arrayOfImages]);
       } catch (error) {
         toast.error(`${error}`, {
           position: "top-left",
@@ -52,12 +46,12 @@ export class App extends Component {
           theme: "colored",
         });
       } finally {
-        this.setState({ loading: false, })
+        setLoading(false);
       };
-    };
-  };
-
-  handleSubmit = (inputedQuery) => {
+    })();    
+  }, [httpQuery, page]);
+  
+  const handleSubmit = (inputedQuery) => {
     if (inputedQuery.trim().toLowerCase() === '') {
       return toast.info("Please, enter the query", {
         position: "top-right",
@@ -65,44 +59,36 @@ export class App extends Component {
         theme: "colored",
       });      
     };
-    this.setState({
-      httpQuery: inputedQuery,
-      page: 1,
-      images: [],
-    });
+    setHttpQuery(inputedQuery);
+    setPage(1);
+    setImages([]);    
   };
 
-  handleButtonClick = () => {
-    this.setState(prevState => {
-      return {
-        page: prevState.page + 1,
-      };
-    });
+  const handleButtonClick = () => {
+    setPage(prevState => (prevState + 1));
   };
-
-  render() {
-    const { loading, images, isButtonVisible } = this.state;
-    return (
-      <>
-        <Searchbar onSubmit={this.handleSubmit} />
-        {loading && (<Dna
-          visible={true}
-          height="200"
-          width="200"
-          ariaLabel="dna-loading"
-          wrapperStyle={{
-            position: "fixed",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",}}
-        />)}
-        {images.length > 0 && <ImageGallery arrayOfImages={images} />}
-        {isButtonVisible && <Button onButtonClick={this.handleButtonClick} />}
-        <ToastContainer
-          position="top-center"
-          autoClose={3000}
-        />
-      </>
-    );
-  };
+  
+  return (
+    <>
+      <Searchbar onSubmit={handleSubmit} />
+      {loading && (<Dna
+        visible={true}
+        height="200"
+        width="200"
+        ariaLabel="dna-loading"
+        wrapperStyle={{
+          position: "fixed",
+          top: "50%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+        }}
+      />)}
+      {images.length > 0 && <ImageGallery arrayOfImages={images} />}
+      {isButtonVisible && <Button onButtonClick={handleButtonClick} />}
+      <ToastContainer
+        position="top-center"
+        autoClose={3000}
+      />
+    </>
+  );
 };
