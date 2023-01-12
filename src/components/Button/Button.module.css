@@ -1,0 +1,25 @@
+.loadMore {
+  display: block;
+  width: 120px;
+  height: 35px;
+  margin: 17px auto 20px auto;
+  font-size: 16px;
+  font-weight: 600;
+  border: none;
+  border-radius: 7px;
+  transition: background-color 300ms linear, color 300ms linear,
+    font-size 300ms linear, font-weight 300ms linear;
+  color: rgb(56, 53, 49);
+  background-color: #a88cbe;
+  box-shadow: 0px 3px 5px 0px rgba(0, 0, 0, 0.5);
+}
+
+.loadMore:hover,
+.loadMore:focus {
+  cursor: pointer;
+  background-color: #5aa7aa;
+  color: #68f196;
+  font-size: 18px;
+  font-weight: 600;
+}
+

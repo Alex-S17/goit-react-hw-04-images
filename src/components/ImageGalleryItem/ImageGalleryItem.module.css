@@ -1,0 +1,19 @@
+.galleryItem {
+  /* transition: scale 300ms linear; */
+  border-radius: 5px;
+}
+
+.galleryItem:hover,
+.galleryItem:focus {
+  cursor: pointer;
+  /* scale: 1.02; */
+}
+      
+.image {
+  display: block;
+  max-width: 100%;
+  width: 350px;
+  height: 250px;
+  object-fit: cover;
+  border-radius: 5px;
+}
